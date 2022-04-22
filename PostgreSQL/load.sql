@@ -1,7 +1,8 @@
 
 \c sdc
 
-COPY products(id, product_name, product_slogan, product_description, product_category, product_price) FROM '/Users/tim/Documents/HackReactor/SDC-Questions-Answers/csvData/product.csv'
+COPY products(id, product_name, product_slogan, product_description, product_category, product_price)
+FROM '/Users/tim/Documents/HackReactor/SDC-Questions-Answers/csvData/product.csv'
 DELIMITER ','
 CSV HEADER;
 
