@@ -1,4 +1,8 @@
 -- -- --clear database on start up
+DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS questions CASCADE;
+DROP TABLE IF EXISTS answers CASCADE;
+DROP TABLE IF EXISTS photos CASCADE;
 DROP DATABASE IF EXISTS sdc;
 
 -- --create db
@@ -51,3 +55,6 @@ CREATE TABLE IF NOT EXISTS photos (
 
 -- ALTER TABLE answers ADD FOREIGN KEY ()
 -- psql postgres < load.sql
+
+-- CREATE INDEX IF NOT EXISTS question_idx ON questions (product_id);
+-- CREATE INDEX IF NOT EXISTS answer_idx ON answers (question_id);
