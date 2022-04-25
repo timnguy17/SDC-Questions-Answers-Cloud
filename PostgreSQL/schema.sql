@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS questions (
   question_date BIGINT NOT NULL,
   asker_name VARCHAR(100) NOT NULL,
   question_email VARCHAR(100),
-  question_reported BOOLEAN,
-  question_helpfulness INT,
+  question_reported BOOLEAN DEFAULT false,
+  question_helpfulness INT DEFAULT  0,
   FOREIGN KEY (product_id) REFERENCES products (id)
 );
 
@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS answers (
   answer_date BIGINT,
   answer_name VARCHAR(100),
   answer_email VARCHAR(100),
-  answer_reported BOOLEAN,
-  answer_helpfulness INT,
+  answer_reported BOOLEAN DEFAULT false,
+  answer_helpfulness INT DEFAULT 0,
   FOREIGN KEY (question_id) REFERENCES questions (id)
 );
 
@@ -56,5 +56,14 @@ CREATE TABLE IF NOT EXISTS photos (
 -- ALTER TABLE answers ADD FOREIGN KEY ()
 -- psql postgres < load.sql
 
--- CREATE INDEX IF NOT EXISTS question_idx ON questions (product_id);
--- CREATE INDEX IF NOT EXISTS answer_idx ON answers (question_id);
+-- ALTER TABLE questions ALTER COLUMN question_date TYPE timestamp using to_timestamp(question_date/1000)::date;
+-- ALTER TABLE questions ALTER COLUMN question_date SET DEFAULT current_timestamp;
+
+-- ALTER TABLE answers ALTER COLUMN answer_date TYPE timestamp using to_timestamp(answer_date/1000)::date;
+-- ALTER TABLE answers ALTER COLUMN answer_date SET DEFAULT current_timestamp;
+
+
+CREATE INDEX IF NOT EXISTS question_idx ON questions (product_id);
+CREATE INDEX IF NOT EXISTS answer_idx ON answers (question_id);
+CREATE INDEX IF NOT EXISTS answer_photos_idx ON photos (answer_id);
+

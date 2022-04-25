@@ -7,6 +7,8 @@ const app = express();
 
 app.use(bodyParser.json());
 
+
+
 //question list
 app.get('/qa/questions', (req, res) => {
   const { product_id, page, count } = req.query;
@@ -25,7 +27,6 @@ app.get('/qa/questions', (req, res) => {
         } else {
           // console.log(result2)
           const answerIDs = result2.rows.map((answer) => { return answer.id; });
-
           db.query(`SELECT * FROM photos WHERE answer_id = ANY($1::int[])`, [answerIDs], (err, result3) => {
             if (err) {
               console.log('error', err)
@@ -37,7 +38,7 @@ app.get('/qa/questions', (req, res) => {
                   "question_date": q.question_date,
                   "asker_name": q.asker_name,
                   "question_helpfulness": q.question_helpfulness,
-                  "reported": q.eustion_reported,
+                  "reported": q.question_reported,
                   "answers":
                     result2.rows.reduce((acc, val) => {
                       if (val.question_id === q.id) {
@@ -114,11 +115,11 @@ app.get('/qa/questions/:question_id/answers', (req, res) => {
 
 //add question
 app.post('/qa/questions', (req, res) => {
-  const { product_id, question_body, question_date, asker_name, question_email, question_reported, question_helpfulness } = req.body;
+  const { product_id, question_body, asker_name, question_email, question_reported, question_helpfulness } = req.body;
   db.query(
     `INSERT INTO questions(product_id, question_body, question_date, asker_name, question_email, question_reported, question_helpfulness)
      VALUES($1, $2, $3, $4, $5, $6, $7)`,
-    [product_id, question_body, question_date, asker_name, question_email, question_reported, question_helpfulness],
+    [product_id, question_body, Date.now(), asker_name, question_email, question_reported, question_helpfulness],
     (err, result) => {
       if (err) {
         console.log('body data', req.body)
@@ -132,11 +133,11 @@ app.post('/qa/questions', (req, res) => {
 
 //add answer
 app.post('/qa/questions/:question_id/answers', (req, res) => {
-  const { question_id, answer_body, answer_date, answer_name, answer_email, answer_reported, answer_helpfulness } = req.body;
+  const { answer_body, answer_name, answer_email, answer_reported, answer_helpfulness } = req.body;
   db.query(
     `INSERT INTO answers(question_id, answer_body, answer_date, answer_name, answer_email, answer_reported, answer_helpfulness)
      VALUES($1, $2, $3, $4, $5, $6, $7)`,
-    [question_id, answer_body, answer_date, answer_name, answer_email, answer_reported, answer_helpfulness],
+    [req.params.question_id, answer_body, Date.now(), answer_name, answer_email, answer_reported, answer_helpfulness],
     (err, result) => {
       if (err) {
         console.log('body data', req)
@@ -173,7 +174,7 @@ app.put('/qa/answers/:answer_id/helpful', (req, res) => {
 
 //report question
 app.put('/qa/questions/:question_id/report', (req, res) => {
-  db.query(`UPDATE questions SET questions_reported = 't' WHERE id = $1`, [req.params.question_id], (err, result) => {
+  db.query(`UPDATE questions SET question_reported = 'true' WHERE id = $1`, [req.params.question_id], (err, result) => {
     if (err) {
       console.log(err)
     } else {
@@ -184,7 +185,7 @@ app.put('/qa/questions/:question_id/report', (req, res) => {
 
 //report answer
 app.put('/qa/answers/:answer_id/report', (req, res) => {
-  db.query(`UPDATE answers SET answers_reported = 't' WHERE id = $1`, [req.params.answer_id], (err, result) => {
+  db.query(`UPDATE answers SET answer_reported = 'true' WHERE id = $1`, [req.params.answer_id], (err, result) => {
     if (err) {
       console.log(err)
     } else {
