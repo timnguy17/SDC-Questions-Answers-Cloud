@@ -16,48 +16,58 @@ app.get('/qa/questions', (req, res) => {
       console.log('error', err)
     } else {
       // console.log(result.rows)
-      // console.log(req.params)
-      // res.send(result.rows);
-      const questionIDs = result.rows.map((question) => {
-        return question.id;
-      })
+      // res.send(result.rows); -- CANT send more than once per query
+      const questionIDs = result.rows.map((question) => { return question.id; });
+
       db.query(`SELECT * FROM answers WHERE question_id = ANY($1::int[])`, [questionIDs], (err, result2) => {
         if (err) {
           console.log(err)
         } else {
           // console.log(result2)
-          const questions = result.rows.map((q) => {
-            return {
-              "question_id": q.id,
-              "question_body": q.question_body,
-              "question_date": q.question_date,
-              "asker_name": q.asker_name,
-              "question_helpfulness": q.question_helpfulness,
-              "reported": q.eustion_reported,
-              "answers":
-                result2.rows.reduce((acc, val) => {
-                  if (val.question_id === q.id) {
-                    acc[val.id] = {
-                      "id": val.id,
-                      "body": val.answer_body,
-                      "date": val.answer_date,
-                      "answerer_name": val.answer_name,
-                      "helpfulness": val.answer_helpfulness,
-                      // "photos":
-                    }
-                  }
-                  return acc;
-                }, {})
+          const answerIDs = result2.rows.map((answer) => { return answer.id; });
+
+          db.query(`SELECT * FROM photos WHERE answer_id = ANY($1::int[])`, [answerIDs], (err, result3) => {
+            if (err) {
+              console.log('error', err)
+            } else {
+              const questions = result.rows.map((q) => {
+                return {
+                  "question_id": q.id,
+                  "question_body": q.question_body,
+                  "question_date": q.question_date,
+                  "asker_name": q.asker_name,
+                  "question_helpfulness": q.question_helpfulness,
+                  "reported": q.eustion_reported,
+                  "answers":
+                    result2.rows.reduce((acc, val) => {
+                      if (val.question_id === q.id) {
+                        acc[val.id] = {
+                          "id": val.id,
+                          "body": val.answer_body,
+                          "date": val.answer_date,
+                          "answerer_name": val.answer_name,
+                          "helpfulness": val.answer_helpfulness,
+                          "photos":
+                            result3.rows.map((photo) => {
+                              return photo.photos_url
+                            })
+                        }
+                      }
+                      return acc;
+                    }, {})
+                }
+              })
+              res.send({
+                "product_id": req.query.product_id,
+                "results": questions
+              });
             }
           })
-          res.send({
-            "product_id":req.query.product_id,
-            "results": questions})
         }
       })
     }
   })
-})
+});
 
 //answer list
 app.get('/qa/questions/:question_id/answers', (req, res) => {
@@ -65,8 +75,34 @@ app.get('/qa/questions/:question_id/answers', (req, res) => {
     if (err) {
       console.log('error', err)
     } else {
-      console.log(result.rows)
-      res.send(result.rows)
+      // console.log(result.rows)
+      const answerIDs = result.rows.map((answer) => { return answer.id });
+
+      db.query('SELECT * FROM photos WHERE answer_id = ANY($1::int[])', [answerIDs], (err, result2) => {
+        if (err) {
+          console.log('error', err);
+        } else {
+          const answers = result.rows.map((answer) => {
+            return {
+              "answer_id": answer.id,
+              "body": answer.answer_body,
+              "date": answer.answer_date,
+              "answerer_name": answer.answer_name,
+              "photos":
+                result2.rows.map((photo) => {
+                  return {
+                    "id": photo.id,
+                    "url": photo.photos_url
+                  }
+                })
+            }
+          })
+          res.send({
+            "question": req.params.question_id,
+            "results": answers
+          });
+        }
+      })
     }
   })
 })
