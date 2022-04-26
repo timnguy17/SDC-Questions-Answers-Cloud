@@ -1,31 +1,17 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const db = require('./db/index.js');
+const db = require('../db/index.js');
 
-const PORT = 3000;
-const app = express();
-
-app.use(bodyParser.json());
-
-
-
-//question list
-app.get('/qa/questions', (req, res) => {
+exports.getQuestions = (req, res) => {
   const { product_id, page, count } = req.query;
   const offset = (page - 1) * count;
   db.query(`SELECT * FROM questions WHERE product_id = $1 LIMIT $2 OFFSET $3`, [product_id, count, offset], (err, result) => {
     if (err) {
       console.log('error', err)
     } else {
-      // console.log(result.rows)
-      // res.send(result.rows); -- CANT send more than once per query
       const questionIDs = result.rows.map((question) => { return question.id; });
-
       db.query(`SELECT * FROM answers WHERE question_id = ANY($1::int[])`, [questionIDs], (err, result2) => {
         if (err) {
           console.log(err)
         } else {
-          // console.log(result2)
           const answerIDs = result2.rows.map((answer) => { return answer.id; });
           db.query(`SELECT * FROM photos WHERE answer_id = ANY($1::int[])`, [answerIDs], (err, result3) => {
             if (err) {
@@ -68,19 +54,16 @@ app.get('/qa/questions', (req, res) => {
       })
     }
   })
-});
+};
 
-//answer list
-app.get('/qa/questions/:question_id/answers', (req, res) => {
+exports.getAnswers = (req, res) => {
   const { page, count } = req.query;
   const offset = (page - 1) * count;
   db.query(`SELECT * FROM answers WHERE question_id = $1 LIMIT $2 OFFSET $3`, [req.params.question_id, count, offset], (err, result) => {
     if (err) {
       console.log('error', err)
     } else {
-      // console.log(result.rows)
       const answerIDs = result.rows.map((answer) => { return answer.id });
-
       db.query(`SELECT * FROM photos WHERE answer_id = ANY($1::int[])`, [answerIDs], (err, result2) => {
         if (err) {
           console.log('error', err);
@@ -110,11 +93,9 @@ app.get('/qa/questions/:question_id/answers', (req, res) => {
       })
     }
   })
-});
+};
 
-
-//add question
-app.post('/qa/questions', (req, res) => {
+exports.postQuestion = (req, res) => {
   const { product_id, question_body, asker_name, question_email, question_reported, question_helpfulness } = req.body;
   db.query(
     `INSERT INTO questions(product_id, question_body, question_date, asker_name, question_email, question_reported, question_helpfulness)
@@ -122,17 +103,15 @@ app.post('/qa/questions', (req, res) => {
     [product_id, question_body, Date.now(), asker_name, question_email, question_reported, question_helpfulness],
     (err, result) => {
       if (err) {
-        console.log('body data', req.body)
         console.log('error', err)
       } else {
         console.log(result)
         res.send('successful question post')
       }
     })
-})
+};
 
-//add answer
-app.post('/qa/questions/:question_id/answers', (req, res) => {
+exports.postAnswer = (req, res) => {
   const { answer_body, answer_name, answer_email, answer_reported, answer_helpfulness } = req.body;
   db.query(
     `INSERT INTO answers(question_id, answer_body, answer_date, answer_name, answer_email, answer_reported, answer_helpfulness)
@@ -140,17 +119,15 @@ app.post('/qa/questions/:question_id/answers', (req, res) => {
     [req.params.question_id, answer_body, Date.now(), answer_name, answer_email, answer_reported, answer_helpfulness],
     (err, result) => {
       if (err) {
-        console.log('body data', req)
         console.log('error', err)
       } else {
         console.log(result)
         res.send('successful answer post')
       }
     })
-})
+};
 
-//mark question as helpful
-app.put('/qa/questions/:question_id/helpful', (req, res) => {
+exports.markQuestion = (req, res) => {
   db.query(`UPDATE questions SET question_helpfulness = question_helpfulness + 1 WHERE id = $1`, [req.params.question_id], (err, result) => {
     if (err) {
       console.log('error', err)
@@ -159,10 +136,9 @@ app.put('/qa/questions/:question_id/helpful', (req, res) => {
       res.status(200).send('marked question as helpful')
     }
   })
-})
+};
 
-//mark answer as helpful
-app.put('/qa/answers/:answer_id/helpful', (req, res) => {
+exports.markAnswer = (req, res) => {
   db.query(`UPDATE answers SET answer_helpfulness = answer_helpfulness + 1 WHERE id = $1`, [req.params.answer_id], (err, result) => {
     if (err) {
       console.log(err)
@@ -170,10 +146,9 @@ app.put('/qa/answers/:answer_id/helpful', (req, res) => {
       res.status(200).send('marked answer as helpful')
     }
   })
-})
+};
 
-//report question
-app.put('/qa/questions/:question_id/report', (req, res) => {
+exports.reportQuestion = (req, res) => {
   db.query(`UPDATE questions SET question_reported = 'true' WHERE id = $1`, [req.params.question_id], (err, result) => {
     if (err) {
       console.log(err)
@@ -181,10 +156,9 @@ app.put('/qa/questions/:question_id/report', (req, res) => {
       res.status(200).send('reported question')
     }
   })
-})
+};
 
-//report answer
-app.put('/qa/answers/:answer_id/report', (req, res) => {
+exports.reportAnswer = (req, res) => {
   db.query(`UPDATE answers SET answer_reported = 'true' WHERE id = $1`, [req.params.answer_id], (err, result) => {
     if (err) {
       console.log(err)
@@ -192,9 +166,4 @@ app.put('/qa/answers/:answer_id/report', (req, res) => {
       res.status(200).send('reported answer')
     }
   })
-})
-
-
-app.listen(PORT, () =>
-  console.log(`The SDC is running on: http://localhost:${PORT}.`)
-);
+};

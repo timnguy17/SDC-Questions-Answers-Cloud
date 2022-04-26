@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS photos (
 -- ALTER TABLE answers ALTER COLUMN answer_date SET DEFAULT current_timestamp;
 
 
-CREATE INDEX IF NOT EXISTS question_idx ON questions (product_id);
-CREATE INDEX IF NOT EXISTS answer_idx ON answers (question_id);
-CREATE INDEX IF NOT EXISTS answer_photos_idx ON photos (answer_id);
+-- CREATE INDEX IF NOT EXISTS question_idx ON questions (product_id);
+-- CREATE INDEX IF NOT EXISTS answer_idx ON answers (question_id);
+-- CREATE INDEX IF NOT EXISTS answer_photos_idx ON photos (answer_id);
 
