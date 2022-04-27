@@ -13,14 +13,14 @@ CREATE DATABASE sdc;
 
 --create table if it doesnt exists
 
-CREATE TABLE IF NOT EXISTS products (
-  id SERIAL PRIMARY KEY NOT NULL,
-  product_name VARCHAR(200),
-  product_slogan VARCHAR(200),
-  product_description TEXT,
-  product_category VARCHAR(200),
-  product_price INT
-);
+-- CREATE TABLE IF NOT EXISTS products (
+--   id SERIAL PRIMARY KEY NOT NULL,
+--   product_name VARCHAR(200),
+--   product_slogan VARCHAR(200),
+--   product_description TEXT,
+--   product_category VARCHAR(200),
+--   product_price INT
+-- );
 
 CREATE TABLE IF NOT EXISTS questions (
   id SERIAL PRIMARY KEY NOT NULL,
@@ -30,8 +30,8 @@ CREATE TABLE IF NOT EXISTS questions (
   asker_name VARCHAR(100) NOT NULL,
   question_email VARCHAR(100),
   question_reported BOOLEAN DEFAULT false,
-  question_helpfulness INT DEFAULT  0,
-  FOREIGN KEY (product_id) REFERENCES products (id)
+  question_helpfulness INT DEFAULT  0
+  -- FOREIGN KEY (product_id) REFERENCES products (id)
 );
 
 CREATE TABLE IF NOT EXISTS answers (
@@ -62,8 +62,8 @@ CREATE TABLE IF NOT EXISTS photos (
 -- ALTER TABLE answers ALTER COLUMN answer_date TYPE timestamp using to_timestamp(answer_date/1000)::date;
 -- ALTER TABLE answers ALTER COLUMN answer_date SET DEFAULT current_timestamp;
 
+CREATE INDEX IF NOT EXISTS question_idx ON questions (product_id);
+CREATE INDEX IF NOT EXISTS answer_idx ON answers (question_id);
+CREATE INDEX IF NOT EXISTS answer_photos_idx ON photos (answer_id);
 
--- CREATE INDEX IF NOT EXISTS question_idx ON questions (product_id);
--- CREATE INDEX IF NOT EXISTS answer_idx ON answers (question_id);
--- CREATE INDEX IF NOT EXISTS answer_photos_idx ON photos (answer_id);
 
