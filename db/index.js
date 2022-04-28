@@ -1,4 +1,5 @@
 const { Pool, Client } = require('pg');
+const dotenv = require('dotenv');
 
 // const credentials = {
 //   user: 'tim',
@@ -9,12 +10,14 @@ const { Pool, Client } = require('pg');
 // };
 
 //cloud connection
+const { USER, HOST, DATABASE, PASSWORD, PORT } = process.env;
+
 const credentials = {
-  user: 'ubuntu',
-  host: "ec2-54-151-62-135.us-west-1.compute.amazonaws.com",
-  database: 'sdc',
+  user: USER,
+  host: HOST,
+  database: DATABASE,
   password: '',
-  port: 5432,
+  port: PORT,
 };
 
 const pool = new Pool(credentials);
