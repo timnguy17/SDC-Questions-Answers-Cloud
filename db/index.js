@@ -16,7 +16,7 @@ const credentials = {
   user: USER,
   host: HOST,
   database: DATABASE,
-  password: '',
+  password: PASSWORD,
   port: PORT,
 };
 
@@ -26,12 +26,12 @@ const client = new Client(credentials);
 // console.time('now query')
 // console.timeEnd('now query')
 
-pool.query('SELECT NOW()', (err, res) => {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log(res.rows);
-  }
-})
+// pool.query('SELECT NOW()', (err, res) => {
+//   if (err) {
+//     console.log(err);
+//   } else {
+//     console.log(res.rows);
+//   }
+// })
 
 module.exports = pool;
