@@ -16,16 +16,16 @@ export const options = {
 let randomProduct = Math.floor(Math.random() * (1000011 - 1) + 1);
 let randomQuestion = Math.floor(Math.random() * (3518963 - 1) + 1);
 
-// export default function () {
-//   http.get(`http://localhost:3000/qa/questions?product_id=${randomProduct}&page=1&count=100`);
-//   sleep(1);
-
-// }
-
 export default function () {
-  http.get(`http://localhost:3000/qa/questions/${randomQuestion}/answers?page=1&count=100`);
+  http.get(`http://localhost:3000/qa/questions?product_id=${randomProduct}&page=1&count=100`);
   sleep(1);
+
 }
+
+// export default function () {
+//   http.get(`http://localhost:3000/qa/questions/${randomQuestion}/answers?page=1&count=100`);
+//   sleep(1);
+// }
 
 
 // export default function () {

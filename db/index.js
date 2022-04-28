@@ -1,8 +1,17 @@
 const { Pool, Client } = require('pg');
 
+// const credentials = {
+//   user: 'tim',
+//   host: 'localhost',
+//   database: 'sdc',
+//   password: '',
+//   port: 5432,
+// };
+
+//cloud connection
 const credentials = {
-  user: 'tim',
-  host: 'localhost',
+  user: 'ubuntu',
+  host: "ec2-54-151-62-135.us-west-1.compute.amazonaws.com",
   database: 'sdc',
   password: '',
   port: 5432,
