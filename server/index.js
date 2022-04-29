@@ -1,3 +1,4 @@
+const newrelic = require('newrelic');
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('../db/index.js');
@@ -34,6 +35,10 @@ app.put('/qa/questions/:question_id/report', reportQuestion);
 //report answer
 app.put('/qa/answers/:answer_id/report', reportAnswer);
 
+//loader verification
+app.get('/loaderio-0673582da95e1f983d2ce4f1007074d1/', (req, res) => {
+	res.send('loaderio-0673582da95e1f983d2ce4f1007074d1');
+});
 
 // //test
 // app.get('/', function (req, res) {
